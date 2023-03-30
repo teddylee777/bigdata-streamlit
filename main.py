@@ -21,17 +21,19 @@ if 'user_selection' not in st.session_state:
     st.session_state['user_selection'] = 0
     
 def create_questions():
-    print('CREATE QUESTION', st.session_state['question_no'])
+    # print('CREATE QUESTION', st.session_state['question_no'])
     idx = st.session_state['question_no']
     question = df.loc[idx, '문제']
     options = df.loc[idx, ['보기1', '보기2', '보기3', '보기4']].values
     answer = df.loc[idx, '정답_num']
     comments = df.loc[idx, '해설']
+    level = df.loc[idx, '난이도']
     return {
         'question': question, 
         'options': options,
         'answer': int(answer),
-        'comments': comments
+        'comments': comments, 
+        'level': level,
     }
     
 def get_index(selection, options):
@@ -45,6 +47,7 @@ st.session_state['true_answer'] = q['answer']
 st.session_state['comments'] = q['comments']
 st.title('빅데이터 분석기사 기출문제')
 form =  st.form('question_form')
+form.markdown(f"난이도 ({q['level']})")
 form.markdown(q['question'])
 radio_select = form.radio('<보기>', options=q['options'], key='user_answer')
 submit_btn = form.form_submit_button('제출')

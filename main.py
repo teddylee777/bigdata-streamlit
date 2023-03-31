@@ -2,6 +2,8 @@ import pandas as pd
 import streamlit as st    
 import random
 
+INITIAL_QUESTION_TYPE = '빅데이터 분석기사'
+
 @st.cache
 def read_data1():
     '''빅데이터 분석기사'''
@@ -14,25 +16,39 @@ def read_data2():
     ret = pd.read_csv('https://www.dropbox.com/s/zdpl4zi5l3v9c9m/%ED%86%B5%EA%B3%84%ED%95%99_%EC%B1%97%EB%B4%87.csv?dl=1')
     return ret
 
+if 'user_state' not in st.session_state:
+    st.session_state['user_state'] = 'question'
+    
 def update_question_no(data):
+    user_state = st.session_state['user_state']
+    if user_state == 'submit':
+        return
+    print(st.session_state['user_state'])
+    # print('문제 번호 업데이트')
     len_df = int(len(data))
     idx = random.randint(0, len_df-1)
     st.session_state['question_no'] = idx
     
 if 'question_type' not in st.session_state:
-    st.session_state['question_type'] = '빅데이터 분석기사'
+    st.session_state['question_type'] = INITIAL_QUESTION_TYPE
+    
+if 'prev_question_type' not in st.session_state:
+    st.session_state['prev_question_type'] = INITIAL_QUESTION_TYPE
     
 if st.session_state['question_type'] == '빅데이터 분석기사':
     # print('빅데이터 분석기사')
     df = read_data1()
-    update_question_no(df)
+    if st.session_state['question_type'] != st.session_state['prev_question_type']:
+        st.session_state['prev_question_type'] = st.session_state['question_type']
+        update_question_no(df)
 elif st.session_state['question_type'] == '통계학':
     # print('통계학')
     df = read_data2()
-    update_question_no(df)
+    if st.session_state['question_type'] != st.session_state['prev_question_type']:
+        st.session_state['prev_question_type'] = st.session_state['question_type']
+        update_question_no(df)
     
-if 'user_state' not in st.session_state:
-    st.session_state['user_state'] = 'question'
+
 
 if 'question_no' not in st.session_state:
     update_question_no(df)
@@ -41,7 +57,13 @@ if 'user_selection' not in st.session_state:
     st.session_state['user_selection'] = 0
 
 title = st.empty()
-question_type = st.selectbox('문제유형', options=['빅데이터 분석기사', '통계학'], key='question_type')
+
+def selectbox_callback():
+    print('onchange')
+
+    # update_question_no(df)
+    
+question_type = st.selectbox('문제유형', options=['빅데이터 분석기사', '통계학'], key='question_type', on_change=selectbox_callback)
     
 def create_questions():
     # print('CREATE QUESTION', st.session_state['question_no'])
@@ -94,7 +116,7 @@ def clear_everything():
 
     
 if submit_btn:
-    st.session_state['disabled'] = True
+    st.session_state['user_state'] = 'submit'
     answer = st.session_state['user_answer']
     true_answer = st.session_state['true_answer']
     user_selection = get_index(answer, q['options'])

@@ -3,7 +3,7 @@ import streamlit as st
 import random
 
 INITIAL_QUESTION_TYPE = '빅데이터 분석기사'
-QUESTION_TYPE_OPTIONS = ['빅데이터 분석기사', '통계학']
+QUESTION_TYPE_OPTIONS = ['빅데이터 분석기사', '통계학', '확률과 통계']
 
 @st.cache_data
 def read_data1():
@@ -16,6 +16,13 @@ def read_data2():
     '''통계학'''
     ret = pd.read_csv('https://www.dropbox.com/s/zdpl4zi5l3v9c9m/%ED%86%B5%EA%B3%84%ED%95%99_%EC%B1%97%EB%B4%87.csv?dl=1')
     return ret
+
+@st.cache_data
+def read_data3():
+    '''확률과 통계'''
+    ret = pd.read_csv('https://www.dropbox.com/s/du1lbvsg4uex19j/%ED%99%95%EB%A5%A0%EA%B3%BC%ED%86%B5%EA%B3%84_%EC%B1%97%EB%B4%87.csv?dl=1')
+    return ret
+
 
 if 'user_state' not in st.session_state:
     st.session_state['user_state'] = 'question'
@@ -39,11 +46,14 @@ def update_question_type(data):
         st.session_state['prev_question_type'] = st.session_state['question_type']
         update_question_no(df)
     
-if st.session_state['question_type'] == '빅데이터 분석기사':
+if st.session_state['question_type'] == QUESTION_TYPE_OPTIONS[0]:
     df = read_data1()
     update_question_type(df)
-elif st.session_state['question_type'] == '통계학':
+elif st.session_state['question_type'] == QUESTION_TYPE_OPTIONS[1]:
     df = read_data2()
+    update_question_type(df)
+elif st.session_state['question_type'] == QUESTION_TYPE_OPTIONS[2]:
+    df = read_data3()
     update_question_type(df)
 
 if 'question_no' not in st.session_state:

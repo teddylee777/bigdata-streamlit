@@ -3,22 +3,45 @@ import streamlit as st
 import random
 
 @st.cache
-def read_data():
+def read_data1():
+    '''빅데이터 분석기사'''
     ret = pd.read_csv('https://www.dropbox.com/s/odjd1akl32q4gum/%EB%B9%85%EB%8D%B0%EC%9D%B4%ED%84%B0_%EB%B6%84%EC%84%9D%EA%B8%B0%EC%82%AC_%EC%B1%97%EB%B4%87.csv?dl=1')
     return ret
 
-df = read_data()
+@st.cache
+def read_data2():
+    '''통계학'''
+    ret = pd.read_csv('https://www.dropbox.com/s/zdpl4zi5l3v9c9m/%ED%86%B5%EA%B3%84%ED%95%99_%EC%B1%97%EB%B4%87.csv?dl=1')
+    return ret
 
+def update_question_no(data):
+    len_df = int(len(data))
+    idx = random.randint(0, len_df-1)
+    st.session_state['question_no'] = idx
+    
+if 'question_type' not in st.session_state:
+    st.session_state['question_type'] = '빅데이터 분석기사'
+    
+if st.session_state['question_type'] == '빅데이터 분석기사':
+    # print('빅데이터 분석기사')
+    df = read_data1()
+    update_question_no(df)
+elif st.session_state['question_type'] == '통계학':
+    # print('통계학')
+    df = read_data2()
+    update_question_no(df)
+    
 if 'user_state' not in st.session_state:
     st.session_state['user_state'] = 'question'
 
 if 'question_no' not in st.session_state:
-    len_df = int(len(df))
-    idx = random.randint(0, len_df-1)
-    st.session_state['question_no'] = idx
+    update_question_no(df)
     
 if 'user_selection' not in st.session_state:
     st.session_state['user_selection'] = 0
+
+title = st.empty()
+question_type = st.selectbox('문제유형', options=['빅데이터 분석기사', '통계학'], key='question_type')
     
 def create_questions():
     # print('CREATE QUESTION', st.session_state['question_no'])
@@ -45,7 +68,7 @@ def get_index(selection, options):
 q = create_questions()
 st.session_state['true_answer'] = q['answer']
 st.session_state['comments'] = q['comments']
-st.title('빅데이터 분석기사 기출문제')
+title.title(f'문제유형: {st.session_state["question_type"]}')
 form =  st.form('question_form')
 form.markdown(f"난이도 ({q['level']})")
 form.markdown(q['question'])
